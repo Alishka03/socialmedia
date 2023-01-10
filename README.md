@@ -1,5 +1,5 @@
-# socialmedia
-BackEnd of social media
+# Social Media
+<h2>BackEnd of social media</h2>
 <h3>Used technologies</h3>
 <ul>
   <li>Spring Boot</li>
