@@ -1,10 +1,15 @@
 package com.example.social.entities;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.Date;
+import java.util.List;
+
 @Entity
 @NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "Users")
 @Getter
 @ToString
@@ -24,4 +29,11 @@ public class User {
     private String password;
     @Column(name = "role")
     private String role;
+    @Column(name = "email")
+    private String email;
+    @Column(name = "joindate")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
+    private Date joinDate;
+    @OneToMany(mappedBy = "author", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    private List<Post> postsList;
 }

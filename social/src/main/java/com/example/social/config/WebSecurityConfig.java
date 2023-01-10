@@ -1,5 +1,6 @@
 package com.example.social.config;
 
+import com.example.social.common.CustomAccessDeniedHandler;
 import com.example.social.security.jwt.JwtFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -26,6 +27,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class WebSecurityConfig {
     private final AccountAuthenticationProvider authenticationProvider;
     private final JwtFilter jwtFilter;
+    private final CustomAccessDeniedHandler accessDeniedHandler;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -35,7 +37,10 @@ public class WebSecurityConfig {
                 .requestMatchers("/auth/**").permitAll()
                 .anyRequest().authenticated()
                 .and()
+                .exceptionHandling().accessDeniedHandler(accessDeniedHandler)
+                .and()
                 .logout()
+
                 .and()
                 .addFilterBefore(jwtFilter , UsernamePasswordAuthenticationFilter.class)
                 .authenticationProvider(authenticationProvider)
