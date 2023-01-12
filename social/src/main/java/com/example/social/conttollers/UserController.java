@@ -11,10 +11,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -42,8 +39,7 @@ public class UserController {
     public ResponseEntity<?> gettingCurrentUser(Authentication authentication) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String username = (String) authentication.getCredentials();
-        System.out.println(username);
-        User user =  userService.userByUsername(username).get();
+        User user = userService.userByUsername(username).get();
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
@@ -64,7 +60,37 @@ public class UserController {
         return "Congratulations! You are an authenticated user.";
     }
 
-    public final User getAuthenticatedUser(){
+    @GetMapping("/followings")
+    public ResponseEntity<?> getFollowings() {
+        User user = getAuthenticatedUser();
+        return new ResponseEntity<>(user.getFollowingUsers(), HttpStatus.OK);
+    }
+
+    @GetMapping("/followers")
+    public ResponseEntity<?> getFollowers() {
+        User user = getAuthenticatedUser();
+        return new ResponseEntity<>(user.getFollowerUsers(), HttpStatus.OK);
+    }
+
+    @GetMapping("/users/{userId}")
+    public ResponseEntity<?> getUsersByUserId(@PathVariable("userId") int userId) {
+        User user = userService.userById(userId).get();
+        return new ResponseEntity<>(user, HttpStatus.OK);
+    }
+
+    @PostMapping("/users/{userId}/follow")
+    public ResponseEntity<?> followUserByUserId(@PathVariable("userId") int userId) {
+        userService.followUser(userId);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @PostMapping("/users/{userId}/unfollow")
+    public ResponseEntity<?> unFollowUserByUserId(@PathVariable("userId") int userId) {
+        userService.unfollowUser(userId);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    public final User getAuthenticatedUser() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         return userService.userByUsername(auth.getCredentials().toString()).get();
     }

@@ -40,9 +40,8 @@ public class WebSecurityConfig {
                 .exceptionHandling().accessDeniedHandler(accessDeniedHandler)
                 .and()
                 .logout()
-
                 .and()
-                .addFilterBefore(jwtFilter , UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
                 .authenticationProvider(authenticationProvider)
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS);

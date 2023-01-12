@@ -30,8 +30,7 @@ public class PostController {
     @PostMapping("/create")
     public ResponseEntity<?> createPost(@RequestParam(value = "content", required = false) Optional<String> content,
                                         @RequestParam(value = "file", required = false) Optional<MultipartFile> file) throws IOException {
-        if ((content.isEmpty() || content.get().length() <= 0) &&
-                file.isEmpty() || file.get().getSize() <= 0) {
+        if ((content.isEmpty() || content.get().length() <= 0) && (file.isEmpty() || file.get().getSize() <= 0)) {
             throw new EmptyPostException();
         }
         String contentToAdd = content.isEmpty() ? null : content.get();

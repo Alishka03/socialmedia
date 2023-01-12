@@ -1,6 +1,7 @@
 package com.example.social.services;
 
 import com.example.social.entities.User;
+import com.example.social.exception.InvalidOperationException;
 import com.example.social.repository.UserRepository;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -13,17 +14,45 @@ import java.util.Optional;
 @Transactional(readOnly = true)
 public class UserService {
     private final UserRepository userRepository;
+
     public UserService(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
-    public Optional<User> userById(int id){
+
+    public Optional<User> userById(int id) {
         return userRepository.findById(id);
     }
-    public Optional<User> userByUsername(String username){
+
+    public Optional<User> userByUsername(String username) {
         return userRepository.findByUsername(username);
     }
-    public final User getAuthenticatedUser(){
+
+    public final User getAuthenticatedUser() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         return userByUsername(auth.getCredentials().toString()).get();
+    }
+    @Transactional
+    public void followUser(int userId){
+        User authUser = getAuthenticatedUser();
+        if(authUser.getId()!=userId){
+            User userToFollow = userById(userId).get();
+            authUser.getFollowingUsers().add(userToFollow);
+            userToFollow.getFollowerUsers().add(authUser);
+
+        }else{
+            throw new InvalidOperationException();
+        }
+    }
+    @Transactional
+    public void unfollowUser(int userId){
+        User authUser = getAuthenticatedUser();
+        if (authUser.getId()!=(userId)) {
+            User userToUnfollow = userById(userId).get();
+            authUser.getFollowingUsers().remove(userToUnfollow);
+            userToUnfollow.getFollowerUsers().remove(authUser);
+
+        } else {
+            throw new InvalidOperationException();
+        }
     }
 }

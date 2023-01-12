@@ -31,5 +31,4 @@ public class Post {
     @ManyToOne
     @JoinColumn(name = "author_id" , referencedColumnName = "id")
     private User author;
-
 }
