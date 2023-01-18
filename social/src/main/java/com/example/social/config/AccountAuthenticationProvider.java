@@ -17,7 +17,6 @@ public class AccountAuthenticationProvider extends AbstractUserDetailsAuthentica
         this.userDetailsService = userDetailsService;
         this.passwordEncoder = passwordEncoder;
     }
-
     @Override
     protected void additionalAuthenticationChecks(UserDetails userDetails, UsernamePasswordAuthenticationToken authentication) throws AuthenticationException {
         if(authentication.getCredentials() == null || userDetails.getPassword() == null) {

@@ -14,6 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.IOException;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -34,7 +35,9 @@ public class PostService {
         this.fileUploadUtil = fileUploadUtil;
     }
 
-
+    public List<Post> getAllPosts(){
+        return postRepository.findAllByOrderByDateCreatedAsc();
+    }
     @Transactional
     public void savePost(Post post) {
         post.setDateCreated(new Date());

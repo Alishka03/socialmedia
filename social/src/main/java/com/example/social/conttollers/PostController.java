@@ -19,14 +19,16 @@ import java.util.Optional;
 public class PostController {
     private final UserService userService;
     private final PostService postService;
-    private final FileUploadUtil fIleUploadUtil;
 
-    public PostController(UserService userService, PostService postService, FileUploadUtil fIleUploadUtil) {
+    public PostController(UserService userService, PostService postService ) {
         this.userService = userService;
         this.postService = postService;
-        this.fIleUploadUtil = fIleUploadUtil;
     }
 
+    @GetMapping("")
+    public ResponseEntity<?> getAllPosts(){
+        return new ResponseEntity(postService.getAllPosts(),HttpStatus.OK);
+    }
     @PostMapping("/create")
     public ResponseEntity<?> createPost(@RequestParam(value = "content", required = false) Optional<String> content,
                                         @RequestParam(value = "file", required = false) Optional<MultipartFile> file) throws IOException {

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotEmpty;
 import lombok.*;
 
 import java.io.Serializable;
@@ -24,16 +25,20 @@ public class User implements Serializable {
     @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
+    @NotEmpty
     @Column(name = "name")
     private String name;
+    @NotEmpty
     @Column(name = "surname")
     private String surname;
     @Column(name = "username")
+    @NotEmpty
     private String username;
     @Column(name = "password")
     private String password;
     @Column(name = "role")
     private String role;
+    @NotEmpty
     @Column(name = "email")
     private String email;
     @Column(name = "joindate")

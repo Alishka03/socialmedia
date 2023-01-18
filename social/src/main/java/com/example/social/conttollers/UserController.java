@@ -1,5 +1,6 @@
 package com.example.social.conttollers;
 
+import com.example.social.dto.UserInfoDto;
 import com.example.social.entities.Post;
 import com.example.social.entities.User;
 import com.example.social.services.PostService;
@@ -43,15 +44,17 @@ public class UserController {
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
+    @PatchMapping("/profile/update")
+    private ResponseEntity<?> updateUserInfo(@RequestBody UserInfoDto userInfoDto){
+        System.out.println(userInfoDto);
+        userService.testing();
+        return new ResponseEntity<>(  "OKAY" , HttpStatus.OK);
+    }
+
     @GetMapping("/myposts")
     public List<Post> myPosts() {
         User user = getAuthenticatedUser();
         return user.getPostsList();
-    }
-
-    @PostMapping("/newpost")
-    public ResponseEntity<?> createNewPost(String post) {
-        return ResponseEntity.ok("OK");
     }
 
     @GetMapping("/greeting")
@@ -71,7 +74,10 @@ public class UserController {
         User user = getAuthenticatedUser();
         return new ResponseEntity<>(user.getFollowerUsers(), HttpStatus.OK);
     }
-
+    @GetMapping("/users")
+    public ResponseEntity<?> getAllUsers(){
+        return new ResponseEntity<>(userService.findAllUsers() ,HttpStatus.OK);
+    }
     @GetMapping("/users/{userId}")
     public ResponseEntity<?> getUsersByUserId(@PathVariable("userId") int userId) {
         User user = userService.userById(userId).get();
@@ -89,6 +95,8 @@ public class UserController {
         userService.unfollowUser(userId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
+
+
 
     public final User getAuthenticatedUser() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
