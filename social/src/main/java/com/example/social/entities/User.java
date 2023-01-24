@@ -44,11 +44,23 @@ public class User implements Serializable {
     @Column(name = "joindate")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private Date joinDate;
-    @OneToMany(mappedBy = "author", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    //POSTS
+    @JsonManagedReference
+    @OneToMany(mappedBy = "author", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<Post> postsList;
+    //---------------
+
+    @JsonManagedReference
+    @OneToMany(mappedBy = "author"  ,fetch = FetchType.LAZY)
+    private List<Comment> comments;
 
     @JsonIgnore
-    @ManyToMany
+    @ManyToMany(mappedBy = "followerUsers", fetch = FetchType.LAZY)
+    private List<User> followingUsers;
+
+
+    @JsonIgnore
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinTable(
             name = "follow_users",
             joinColumns = @JoinColumn(name = "followed_id"),
@@ -56,27 +68,25 @@ public class User implements Serializable {
     )
     private List<User> followerUsers = new ArrayList<>();
 
-    @JsonIgnore
-    @ManyToMany(mappedBy = "followerUsers")
-    private List<User> followingUsers = new ArrayList<>();
-
-
-    @Override
-    public String toString() {
-        return getClass().getSimpleName() + "(" +
-                "id = " + id + ", " +
-                "name = " + name + ", " +
-                "surname = " + surname + ", " +
-                "username = " + username + ", " +
-                "password = " + password + ", " +
-                "role = " + role + ", " +
-                "email = " + email + ", " +
-                "joinDate = " + joinDate + ")";
-    }
 
     @Override
     public int hashCode() {
         return super.hashCode();
+    }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", surname='" + surname + '\'' +
+                ", username='" + username + '\'' +
+                ", password='" + password + '\'' +
+                ", role='" + role + '\'' +
+                ", email='" + email + '\'' +
+                ", joinDate=" + joinDate +
+                ", postsList=" + postsList+
+                '}';
     }
 
     @Override

@@ -1,11 +1,14 @@
 package com.example.social.conttollers;
 
+import com.example.social.dto.CommentDto;
+import com.example.social.entities.Comment;
 import com.example.social.entities.Post;
 import com.example.social.exception.EmptyPostException;
 import com.example.social.exception.PostNotFoundException;
+import com.example.social.services.CommentService;
 import com.example.social.services.PostService;
 import com.example.social.services.UserService;
-import com.example.social.util.FileUploadUtil;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,16 +22,19 @@ import java.util.Optional;
 public class PostController {
     private final UserService userService;
     private final PostService postService;
+    private final CommentService commentService;
 
-    public PostController(UserService userService, PostService postService ) {
+    public PostController(UserService userService, PostService postService, CommentService commentService) {
         this.userService = userService;
         this.postService = postService;
+        this.commentService = commentService;
     }
 
     @GetMapping("")
-    public ResponseEntity<?> getAllPosts(){
-        return new ResponseEntity(postService.getAllPosts(),HttpStatus.OK);
+    public ResponseEntity<?> getAllPosts() {
+        return new ResponseEntity(postService.getAllPosts(), HttpStatus.OK);
     }
+
     @PostMapping("/create")
     public ResponseEntity<?> createPost(@RequestParam(value = "content", required = false) Optional<String> content,
                                         @RequestParam(value = "file", required = false) Optional<MultipartFile> file) throws IOException {
@@ -49,4 +55,16 @@ public class PostController {
         }
         return post;
     }
+
+    @PostMapping("/{postId}/addcomment")
+    public Comment addComment(@PathVariable("postId") int postId,@RequestBody CommentDto content) {
+        Optional<Post> post = postService.getPostById(postId);
+        if (post.isEmpty()) {
+            throw new PostNotFoundException("Post not found with id : " + postId);
+        }
+        return commentService.addingComment(content,post.get());
+
+
+    }
+
 }

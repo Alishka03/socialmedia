@@ -33,6 +33,7 @@ public class UserController {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         User user = userService.userByUsername(auth.getCredentials().toString()).get();
         log.info(user.getName());
+        System.out.println(user);
         return user;
     }
 
@@ -41,9 +42,9 @@ public class UserController {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String username = (String) authentication.getCredentials();
         User user = userService.userByUsername(username).get();
+        System.out.println(user);
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
-
     @PatchMapping("/profile/update")
     private ResponseEntity<?> updateUserInfo(@RequestBody UserInfoDto userInfoDto){
         System.out.println(userInfoDto);
