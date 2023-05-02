@@ -3,7 +3,9 @@ package com.example.social.services;
 import com.example.social.dto.UserInfoDto;
 import com.example.social.entities.User;
 import com.example.social.exception.InvalidOperationException;
+import com.example.social.mapper.UserMapper;
 import com.example.social.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -14,16 +16,17 @@ import java.util.Optional;
 
 @Service
 @Transactional(readOnly = true)
+@RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
 
-    public UserService(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
-
-
     public Optional<User> userById(int id) {
-        return userRepository.findById(id);
+        Optional<User> user = userRepository.findById(id);
+        System.out.println(user.get().getUsername());
+        if(user.isEmpty()){
+            throw new InvalidOperationException("There is no user with id : "+id);
+        }
+        return user;
     }
 
     public Optional<User> userByUsername(String username) {

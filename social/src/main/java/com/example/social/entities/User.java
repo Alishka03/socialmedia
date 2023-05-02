@@ -38,12 +38,10 @@ public class User implements Serializable {
     private String password;
     @Column(name = "role")
     private String role;
-    @NotEmpty
-    @Column(name = "email")
-    private String email;
     @Column(name = "joindate")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private Date joinDate;
+
     //POSTS
     @JsonManagedReference
     @OneToMany(mappedBy = "author", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
@@ -56,7 +54,7 @@ public class User implements Serializable {
 
     @JsonIgnore
     @ManyToMany(mappedBy = "followerUsers", fetch = FetchType.LAZY)
-    private List<User> followingUsers;
+    private List<User> followingUsers = new ArrayList<>();
 
 
     @JsonIgnore
@@ -83,12 +81,14 @@ public class User implements Serializable {
                 ", username='" + username + '\'' +
                 ", password='" + password + '\'' +
                 ", role='" + role + '\'' +
-                ", email='" + email + '\'' +
                 ", joinDate=" + joinDate +
                 ", postsList=" + postsList+
                 '}';
     }
-
+    @Transient
+    public int following = followingUsers.toArray().length;
+    @Transient
+    public int followers = followerUsers.toArray().length;
     @Override
     public boolean equals(Object obj) {
         return super.equals(obj);

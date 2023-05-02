@@ -8,6 +8,7 @@ import com.example.social.repository.CommentRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
+import java.util.List;
 
 @Service
 public class CommentService {
@@ -28,10 +29,7 @@ public class CommentService {
         comment.setPost(post);
         authUser.getComments().add(comment);
         post.getComments().add(comment);
-        System.out.println(comment.getContent());
-        System.out.println(comment.getDateCreated());
-
-        System.out.println(comment);
         return commentRepository.save(comment);
     }
+
 }

@@ -31,10 +31,9 @@ public class WebSecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-
-        http.csrf().disable().cors().disable()
+        http.csrf().disable().cors().and()
                 .authorizeHttpRequests()
-                .requestMatchers("/auth/**").permitAll()
+                .requestMatchers("/auth/**","/swagger-ui/**","/swagger-ui").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .exceptionHandling().accessDeniedHandler(accessDeniedHandler)
