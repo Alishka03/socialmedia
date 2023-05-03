@@ -5,26 +5,35 @@ import com.example.social.entities.User;
 import com.example.social.exception.InvalidOperationException;
 import com.example.social.mapper.UserMapper;
 import com.example.social.repository.UserRepository;
+import com.example.social.util.FileNamingUtil;
+import com.example.social.util.FileUploadUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
+
 public class UserService {
     private final UserRepository userRepository;
+    private final FileNamingUtil fileNamingUtil;
+    private final FileUploadUtil fileUploadUtil;
+
+    private String PATH_DIRECTORY = "C:\\Users\\Admin\\Desktop\\social-media-front-back\\front-end-final-project\\src\\assets\\images";
 
     public Optional<User> userById(int id) {
         Optional<User> user = userRepository.findById(id);
         System.out.println(user.get().getUsername());
-        if(user.isEmpty()){
-            throw new InvalidOperationException("There is no user with id : "+id);
+        if (user.isEmpty()) {
+            throw new InvalidOperationException("There is no user with id : " + id);
         }
         return user;
     }
@@ -35,7 +44,28 @@ public class UserService {
 
     public final User getAuthenticatedUser() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        return userByUsername(auth.getCredentials().toString()).get();
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName();
+        return userByUsername(username).get();
+    }
+
+    @Transactional
+    public User updateImage(MultipartFile postPhoto) {
+        User user = getAuthenticatedUser();
+        if (postPhoto != null && postPhoto.getSize() > 0) {
+            System.out.println("PATH_DIRECTORY : " + PATH_DIRECTORY);
+            String newPhotoName = fileNamingUtil.nameFile(postPhoto);
+            String newPhotoUrl = newPhotoName;
+            user.setProfilePhoto(newPhotoUrl);
+            try {
+                fileUploadUtil.saveNewFile(PATH_DIRECTORY, newPhotoName, postPhoto);
+                System.out.println("File saved");
+            } catch (IOException e) {
+                System.out.println("PATH NOT FOUND");
+                throw new RuntimeException();
+            }
+        }
+        return userRepository.save(user);
     }
 
     public List<User> findAllUsers() {

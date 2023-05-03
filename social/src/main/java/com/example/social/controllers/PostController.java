@@ -5,6 +5,7 @@ import com.example.social.entities.Comment;
 import com.example.social.entities.Post;
 import com.example.social.exception.EmptyPostException;
 import com.example.social.exception.PostNotFoundException;
+import com.example.social.repository.PostRepository;
 import com.example.social.services.CommentService;
 import com.example.social.services.PostService;
 import com.example.social.services.UserService;
@@ -23,16 +24,19 @@ public class PostController {
     private final UserService userService;
     private final PostService postService;
     private final CommentService commentService;
+    private final PostRepository postRepository;
 
-    public PostController(UserService userService, PostService postService, CommentService commentService) {
+    public PostController(UserService userService, PostService postService, CommentService commentService,
+                          PostRepository postRepository) {
         this.userService = userService;
         this.postService = postService;
         this.commentService = commentService;
+        this.postRepository = postRepository;
     }
 
     @GetMapping("")
     public ResponseEntity<?> getAllPosts() {
-        return new ResponseEntity(postService.getAllPosts(), HttpStatus.OK);
+        return new ResponseEntity<>(postService.getAllPosts(), HttpStatus.OK);
     }
 
     @PostMapping("/create")
@@ -69,15 +73,25 @@ public class PostController {
         }
         return new ResponseEntity<>(post.get().getComments(),HttpStatus.OK);
     }
+    @PostMapping("/{postId}/photo/delete")
+    public ResponseEntity<?> deletePhoto(@PathVariable("postId") int postId) {
+        postService.deletePhoto(postId);
+        return new ResponseEntity<>("DELETED",HttpStatus.OK);
+    }
 
     @PostMapping("/{postId}/comments/create")
-    public Comment addComment(@PathVariable("postId") int postId,@RequestBody CommentDto content) {
+    public ResponseEntity<?> addComment(@PathVariable("postId") int postId,@RequestBody CommentDto content) {
         Optional<Post> post = postService.getPostById(postId);
         if (post.isEmpty()) {
             throw new PostNotFoundException("Post not found with id : " + postId);
         }
-        return commentService.addingComment(content,post.get());
+        return new ResponseEntity<>(commentService.addingComment(content,post.get()),HttpStatus.CREATED);
     }
 
+    @PostMapping("/{postId}/like")
+    public ResponseEntity<?> like(@PathVariable("postId") int postId){
+        postService.likePost(postId);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
 
 }

@@ -36,20 +36,26 @@ public class User implements Serializable {
     private String username;
     @Column(name = "password")
     private String password;
+    @Column(name = "profile_photo")
+    private String profilePhoto;
     @Column(name = "role")
     private String role;
     @Column(name = "joindate")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private Date joinDate;
+    @Column(name = "intro")
+    private String intro;
+    @Column(name = "hometown")
+    private String hometown;
 
     //POSTS
-    @JsonManagedReference
-    @OneToMany(mappedBy = "author", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JsonIgnore
+    @OneToMany(mappedBy = "author", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     private List<Post> postsList;
     //---------------
 
-    @JsonManagedReference
-    @OneToMany(mappedBy = "author"  ,fetch = FetchType.LAZY)
+    @JsonIgnore
+    @OneToMany(mappedBy = "author", fetch = FetchType.LAZY)
     private List<Comment> comments;
 
     @JsonIgnore
@@ -66,31 +72,24 @@ public class User implements Serializable {
     )
     private List<User> followerUsers = new ArrayList<>();
 
+    @JsonIgnore
+    @ManyToMany(mappedBy = "likeList")
+    private List<Post> likedPosts = new ArrayList<>();
 
-    @Override
-    public int hashCode() {
-        return super.hashCode();
-    }
+    @Transient
+    public String token = null;
 
-    @Override
-    public String toString() {
-        return "User{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", surname='" + surname + '\'' +
-                ", username='" + username + '\'' +
-                ", password='" + password + '\'' +
-                ", role='" + role + '\'' +
-                ", joinDate=" + joinDate +
-                ", postsList=" + postsList+
-                '}';
-    }
-    @Transient
-    public int following = followingUsers.toArray().length;
-    @Transient
-    public int followers = followerUsers.toArray().length;
     @Override
     public boolean equals(Object obj) {
         return super.equals(obj);
+    }
+
+    public int getFollowerCount() {
+
+        return followerUsers.size();
+    }
+
+    public int getFollowingCount() {
+        return followingUsers.size();
     }
 }

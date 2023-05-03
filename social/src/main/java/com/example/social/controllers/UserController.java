@@ -3,9 +3,12 @@ package com.example.social.controllers;
 import com.example.social.dto.UserInfoDto;
 import com.example.social.entities.Post;
 import com.example.social.entities.User;
+import com.example.social.exception.EmptyPostException;
 import com.example.social.mapper.MapStructMapper;
 import com.example.social.mapper.UserMapper;
+import com.example.social.pojo.PostResponse;
 import com.example.social.pojo.ProfileResponse;
+import com.example.social.response.MessageResponse;
 import com.example.social.services.PostService;
 import com.example.social.services.UserService;
 import lombok.extern.slf4j.Slf4j;
@@ -15,16 +18,19 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @Slf4j
-@CrossOrigin(origins = "http://localhost:4200")
+@CrossOrigin(origins= "http://localhost:4200", maxAge = 4800, allowCredentials = "false")
 public class UserController {
     private final UserService userService;
     private final PostService postService;
-
     public UserController(UserService userService, PostService postService) {
         this.userService = userService;
         this.postService = postService;
@@ -55,11 +61,28 @@ public class UserController {
     }
 
     @GetMapping("/myposts")
-    public List<Post> myPosts() {
-        User user = getAuthenticatedUser();
-        return user.getPostsList();
+    public ResponseEntity<?> myPosts() {
+        User authUser = getAuthenticatedUser();
+        List<PostResponse> posts = new ArrayList<>();
+        for(Post post: authUser.getPostsList()){
+            PostResponse response = new PostResponse();
+            response.setLikedByAuthUser(post.getLikeList().contains(authUser));
+            response.setPost(post);
+            posts.add(response);
+        }
+        return new ResponseEntity<>(posts,HttpStatus.OK);
     }
 
+    @RequestMapping(value = "/update-profile-image", method = RequestMethod.POST)
+    public ResponseEntity<?> updateProfileImage(@RequestParam(value = "file") Optional<MultipartFile> file) throws IOException {
+        if ( (file.isEmpty() || file.get().getSize() <= 0)) {
+            throw new EmptyPostException();
+        }
+        MultipartFile postImageToAdd = file.isEmpty() ? null : file.get();
+        log.info("Adding image");
+        User user = userService.updateImage(postImageToAdd);
+        return new ResponseEntity<>(user,HttpStatus.OK);
+    }
     @GetMapping("/greeting")
     @PreAuthorize("isAuthenticated()")
     public String userAccess() {
@@ -85,9 +108,11 @@ public class UserController {
 
     @GetMapping("/users/{userId}")
     public ResponseEntity<?> getUsersByUserId(@PathVariable("userId") int userId) {
-        System.out.println(userId);
-        User user = userService.userById(userId).get();
-        return new ResponseEntity<>(MapStructMapper.MAPPER.mapToUserDto(user), HttpStatus.OK);
+        Optional<User> user = userService.userById(userId);
+        if(user.isEmpty()){
+            return new ResponseEntity<>(new MessageResponse("NOT FOUND"),HttpStatus.NOT_FOUND);
+        }
+        else return new ResponseEntity<>(user.get(), HttpStatus.OK);
     }
 
     @PostMapping("/users/{userId}/follow")
