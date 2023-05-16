@@ -9,6 +9,7 @@ import com.example.social.exception.PostNotFoundException;
 import com.example.social.pojo.PostResponse;
 import com.example.social.repository.CommentRepository;
 import com.example.social.repository.PostRepository;
+import com.example.social.repository.UserRepository;
 import com.example.social.util.FileUploadUtil;
 import com.example.social.util.FileNamingUtil;
 import org.springframework.stereotype.Service;
@@ -32,14 +33,17 @@ public class PostService {
     private final FileNamingUtil fileNamingUtil;
     private final FileUploadUtil fileUploadUtil;
     private final CommentRepository commentRepository;
+    private final UserRepository userRepository;
 
 
-    public PostService(PostRepository postRepository, UserService userService, FileNamingUtil fileNamingUtil, FileUploadUtil fileUploadUtil, CommentRepository commentRepository) {
+    public PostService(PostRepository postRepository, UserService userService, FileNamingUtil fileNamingUtil, FileUploadUtil fileUploadUtil, CommentRepository commentRepository,
+                       UserRepository userRepository) {
         this.postRepository = postRepository;
         this.userService = userService;
         this.fileNamingUtil = fileNamingUtil;
         this.fileUploadUtil = fileUploadUtil;
         this.commentRepository = commentRepository;
+        this.userRepository = userRepository;
     }
 
     public List<PostResponse> getAllPosts() {
@@ -122,7 +126,7 @@ public class PostService {
             postRepository.save(post);
         }
     }
-    public void likePost(int postId) {
+    public boolean likePost(int postId) {
         User authUser = userService.getAuthenticatedUser();
         Optional<Post> targetPost  = getPostById(postId);
         if(targetPost.isPresent()) {
@@ -132,6 +136,13 @@ public class PostService {
                 System.out.println(targetPost.get().toString());
                 postRepository.save(targetPost.get());
                 authUser.getLikedPosts().add(targetPost.get());
+                return true;
+            }else{
+                targetPost.get().setLikeCount(targetPost.get().getLikeCount() - 1);
+                targetPost.get().getLikeList().remove(authUser);
+                postRepository.save(targetPost.get());
+                authUser.getLikedPosts().remove(targetPost.get());
+                return false;
             }
         }else {
             throw new InvalidOperationException("POST NOT FOUND WITH ID : "+postId);
@@ -150,5 +161,54 @@ public class PostService {
             postRepository.save(target);
         }else throw new InvalidOperationException("Invalid operation exception");
 
+    }
+
+    public Post updatePost(int postId, String contentToAdd, MultipartFile postPhoto) {
+        Optional<Post> post = postRepository.findById(postId);
+        if(post.isEmpty()){
+            throw new InvalidOperationException("Post not found with id: "+postId);
+        }
+        Post newPost= post.get();
+        newPost.setContent(contentToAdd);
+        if (postPhoto != null && postPhoto.getSize() > 0) {
+            System.out.println("PATH_DIRECTORY : " + PATH_DIRECTORY);
+            String newPhotoName = fileNamingUtil.nameFile(postPhoto);
+            newPost.setPostPhoto(newPhotoName);
+            try {
+                fileUploadUtil.saveNewFile(PATH_DIRECTORY, newPhotoName, postPhoto);
+            } catch (IOException e) {
+                System.out.println("PATH NOT FOUND");
+                throw new RuntimeException();
+            }
+        }
+        return postRepository.save(newPost);
+    }
+
+    public List<Post> getPostsOfUser() {
+        User user = userService.getAuthenticatedUser();
+        return postRepository.findByAuthorIdOrderByDateCreatedDesc(user.getId());
+    }
+
+    public void deletePost(int postId) {
+        User user = userService.getAuthenticatedUser();
+        Optional<Post> post = postRepository.findById(postId);
+        if(post.isEmpty()){
+            throw new InvalidOperationException("Post not found with id: "+postId);
+        }else {
+            user.getPostsList().remove(post.get());
+            postRepository.deleteById(postId);
+        }
+    }
+    public List<PostResponse> getPostsOfUserById(int userId){
+        User authUser = userService.getAuthenticatedUser();
+        List<Post> posts = postRepository.findByAuthorId(userId);
+        List<PostResponse> postResponses = new ArrayList<>();
+        for(Post post : posts){
+            PostResponse response = new PostResponse();
+            response.setLikedByAuthUser(post.getLikeList().contains(authUser));
+            response.setPost(post);
+            postResponses.add(response);
+        }
+        return postResponses;
     }
 }

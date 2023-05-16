@@ -9,4 +9,6 @@ import java.util.List;
 @Repository
 public interface PostRepository extends JpaRepository<Post , Integer> {
     List<Post> findAllByOrderByDateCreatedAsc();
+    List<Post> findByAuthorIdOrderByDateCreatedDesc(Integer id);
+    List<Post> findByAuthorId(Integer id);
 }

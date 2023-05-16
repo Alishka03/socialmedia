@@ -1,6 +1,7 @@
 package com.example.social.pojo;
 
 import com.example.social.entities.Post;
+import lombok.Builder;
 import lombok.Data;
 
 @Data

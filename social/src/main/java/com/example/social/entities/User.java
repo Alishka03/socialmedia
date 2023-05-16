@@ -72,6 +72,7 @@ public class User implements Serializable {
     )
     private List<User> followerUsers = new ArrayList<>();
 
+
     @JsonIgnore
     @ManyToMany(mappedBy = "likeList")
     private List<Post> likedPosts = new ArrayList<>();

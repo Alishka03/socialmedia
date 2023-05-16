@@ -4,6 +4,7 @@ import com.example.social.dto.UserInfoDto;
 import com.example.social.entities.User;
 import com.example.social.exception.InvalidOperationException;
 import com.example.social.mapper.UserMapper;
+import com.example.social.pojo.PostResponse;
 import com.example.social.repository.UserRepository;
 import com.example.social.util.FileNamingUtil;
 import com.example.social.util.FileUploadUtil;
@@ -43,7 +44,6 @@ public class UserService {
     }
 
     public final User getAuthenticatedUser() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = authentication.getName();
         return userByUsername(username).get();
@@ -106,4 +106,6 @@ public class UserService {
             throw new InvalidOperationException();
         }
     }
+
+
 }

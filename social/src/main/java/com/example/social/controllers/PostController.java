@@ -5,6 +5,7 @@ import com.example.social.entities.Comment;
 import com.example.social.entities.Post;
 import com.example.social.exception.EmptyPostException;
 import com.example.social.exception.PostNotFoundException;
+import com.example.social.pojo.PostResponse;
 import com.example.social.repository.PostRepository;
 import com.example.social.services.CommentService;
 import com.example.social.services.PostService;
@@ -59,10 +60,16 @@ public class PostController {
         }
         return post;
     }
+
     @DeleteMapping("/{postId}/comments/{commentId}")
-    public ResponseEntity<?> deletePostById(@PathVariable("postId") int postId,@PathVariable("commentId") int commentId){
-        postService.deleteComment(postId,commentId);
-        return new ResponseEntity<>("Deleted",HttpStatus.OK);
+    public ResponseEntity<?> deletePostById(@PathVariable("postId") int postId, @PathVariable("commentId") int commentId) {
+        postService.deleteComment(postId, commentId);
+        return new ResponseEntity<>("Deleted", HttpStatus.OK);
+    }
+    @DeleteMapping("/{postId}/delete")
+    public ResponseEntity<?> deletePost(@PathVariable("postId") int postId){
+        postService.deletePost(postId);
+        return new ResponseEntity<>("DELETED",HttpStatus.OK);
     }
 
     @GetMapping("/{postId}/comments")
@@ -71,27 +78,47 @@ public class PostController {
         if (post.isEmpty()) {
             throw new PostNotFoundException("Post not found with id : " + postId);
         }
-        return new ResponseEntity<>(post.get().getComments(),HttpStatus.OK);
+        return new ResponseEntity<>(post.get().getComments(), HttpStatus.OK);
     }
+
     @PostMapping("/{postId}/photo/delete")
     public ResponseEntity<?> deletePhoto(@PathVariable("postId") int postId) {
         postService.deletePhoto(postId);
-        return new ResponseEntity<>("DELETED",HttpStatus.OK);
+        return new ResponseEntity<>("DELETED", HttpStatus.OK);
     }
 
     @PostMapping("/{postId}/comments/create")
-    public ResponseEntity<?> addComment(@PathVariable("postId") int postId,@RequestBody CommentDto content) {
+    public ResponseEntity<?> addComment(@PathVariable("postId") int postId, @RequestBody CommentDto content) {
         Optional<Post> post = postService.getPostById(postId);
         if (post.isEmpty()) {
             throw new PostNotFoundException("Post not found with id : " + postId);
         }
-        return new ResponseEntity<>(commentService.addingComment(content,post.get()),HttpStatus.CREATED);
+        return new ResponseEntity<>(commentService.addingComment(content, post.get()), HttpStatus.CREATED);
     }
 
     @PostMapping("/{postId}/like")
-    public ResponseEntity<?> like(@PathVariable("postId") int postId){
-        postService.likePost(postId);
-        return new ResponseEntity<>(HttpStatus.OK);
+    public ResponseEntity<?> like(@PathVariable("postId") int postId) {
+        boolean flag = postService.likePost(postId);
+        PostResponse response = new PostResponse();
+        Optional<Post> post = postService.getPostById(postId);
+        response.setLikedByAuthUser(post.get().getLikeList().contains(userService.getAuthenticatedUser()));
+        response.setPost(post.get());
+        return new ResponseEntity<>(response,HttpStatus.OK);
+    }
+
+    @PatchMapping("/{postId}/update")
+    public ResponseEntity<?> update(@PathVariable("postId") int postId, @RequestParam(value = "content", required = false) Optional<String> content,
+                                    @RequestParam(value = "file", required = false) Optional<MultipartFile> file) throws IOException {
+        if ((content.isEmpty() || content.get().length() <= 0) && (file.isEmpty() || file.get().getSize() <= 0)) {
+            throw new EmptyPostException();
+        }
+        String contentToAdd = content.isEmpty() ? null : content.get();
+        MultipartFile postImageToAdd = file.isEmpty() ? null : file.get();
+        Post post = postService.updatePost(postId,contentToAdd,postImageToAdd);
+        PostResponse response = new PostResponse();
+        response.setLikedByAuthUser(post.getLikeList().contains(userService.getAuthenticatedUser()));
+        response.setPost(post);
+        return new ResponseEntity<>(response,HttpStatus.OK);
     }
 
 }
