@@ -17,6 +17,7 @@ public class JwtUserDetails implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
+        System.out.println("ROLE "+user.getRole());
         return Collections.singletonList(new SimpleGrantedAuthority(user.getRole()));
     }
 

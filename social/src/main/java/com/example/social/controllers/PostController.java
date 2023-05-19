@@ -39,6 +39,10 @@ public class PostController {
     public ResponseEntity<?> getAllPosts() {
         return new ResponseEntity<>(postService.getAllPosts(), HttpStatus.OK);
     }
+    @GetMapping("/no-auth")
+    public ResponseEntity<?> getAllPostsNotAuth() {
+        return new ResponseEntity<>(postService.getAllPostsNotAuth(), HttpStatus.OK);
+    }
 
     @PostMapping("/create")
     public ResponseEntity<?> createPost(@RequestParam(value = "content", required = false) Optional<String> content,
@@ -93,7 +97,8 @@ public class PostController {
         if (post.isEmpty()) {
             throw new PostNotFoundException("Post not found with id : " + postId);
         }
-        return new ResponseEntity<>(commentService.addingComment(content, post.get()), HttpStatus.CREATED);
+        Comment comment = commentService.addingComment(content,post.get());
+        return new ResponseEntity<>(comment, HttpStatus.CREATED);
     }
 
     @PostMapping("/{postId}/like")

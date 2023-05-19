@@ -1,6 +1,7 @@
 package com.example.social.services;
 
 import com.example.social.dto.UserInfoDto;
+import com.example.social.dto.UserUpdateInfoDTO;
 import com.example.social.entities.User;
 import com.example.social.exception.InvalidOperationException;
 import com.example.social.mapper.UserMapper;
@@ -107,5 +108,54 @@ public class UserService {
         }
     }
 
+    @Transactional
+    public User updateProfile(UserUpdateInfoDTO userUpdateInfoDTO) {
+        User authUser = getAuthenticatedUser();
+        if (!userUpdateInfoDTO.getHometown().equals("")) {
+            authUser.setHometown(userUpdateInfoDTO.getHometown());
+        }
+        if (!userUpdateInfoDTO.getIntro().equals("")) {
+            authUser.setIntro(userUpdateInfoDTO.getIntro());
+        }
+        if (!userUpdateInfoDTO.getWorkplace().equals("")) {
+            authUser.setWorkplace(userUpdateInfoDTO.getWorkplace());
+        }
+        if (!userUpdateInfoDTO.getSurname().equals("")) {
+            authUser.setSurname(userUpdateInfoDTO.getSurname());
+        }
+        if (!userUpdateInfoDTO.getName().equals("")) {
+            authUser.setName(userUpdateInfoDTO.getName());
+        }
+        userRepository.save(authUser);
+        return authUser;
+    }
+    @Transactional
+    public User updateProfileAdmin(UserUpdateInfoDTO userUpdateInfoDTO,int id) {
+        User authUser = userRepository.findById(id).get();
+        if (!userUpdateInfoDTO.getHometown().equals("")) {
+            authUser.setHometown(userUpdateInfoDTO.getHometown());
+        }
+        if (!userUpdateInfoDTO.getIntro().equals("")) {
+            authUser.setIntro(userUpdateInfoDTO.getIntro());
+        }
+        if (!userUpdateInfoDTO.getWorkplace().equals("")) {
+            authUser.setWorkplace(userUpdateInfoDTO.getWorkplace());
+        }
+        if (!userUpdateInfoDTO.getSurname().equals("")) {
+            authUser.setSurname(userUpdateInfoDTO.getSurname());
+        }
+        if (!userUpdateInfoDTO.getName().equals("")) {
+            authUser.setName(userUpdateInfoDTO.getName());
+        }
+        if (!userUpdateInfoDTO.getPassword().equals("")) {
+            authUser.setPassword(userUpdateInfoDTO.getPassword());
+        }
+        userRepository.save(authUser);
+        return authUser;
+    }
 
+    @Transactional
+    public List<User> search(String value){
+        return userRepository.findByNameIgnoreCaseContainingOrSurnameIgnoreCaseContaining(value,value);
+    }
 }

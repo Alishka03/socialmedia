@@ -1,6 +1,7 @@
 package com.example.social.controllers;
 
 import com.example.social.dto.UserInfoDto;
+import com.example.social.dto.UserUpdateInfoDTO;
 import com.example.social.entities.Post;
 import com.example.social.entities.User;
 import com.example.social.exception.EmptyPostException;
@@ -131,7 +132,7 @@ public class UserController {
         } else {
             UserResponse userResponse = new UserResponse();
             User authUser = getAuthenticatedUser();
-            userResponse.setFollowedByAuthUser(authUser.getFollowingUsers().contains(user));
+            userResponse.setFollowedByAuthUser(authUser.getFollowingUsers().contains(user.get()));
             userResponse.setUser(user.get());
             return new ResponseEntity<>(userResponse, HttpStatus.OK);
         }
@@ -152,5 +153,24 @@ public class UserController {
     public User getAuthenticatedUser() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         return userService.userByUsername(auth.getName()).get();
+    }
+
+    @PostMapping("/update-profile")
+    public ResponseEntity<?> updateProfile(@RequestBody UserUpdateInfoDTO userUpdateInfoDTO){
+        User user = userService.updateProfile(userUpdateInfoDTO);
+        return new ResponseEntity<>(user , HttpStatus.OK);
+    }
+    @GetMapping("/users/search/{filter}")
+    public ResponseEntity<?> usersFilter(@PathVariable String filter){
+        User authUser = getAuthenticatedUser();
+        List<UserResponse> userResponses = new ArrayList<>();
+        List<User> users = userService.search(filter);
+        for (User user : users) {
+            UserResponse userResponse = new UserResponse();
+            userResponse.setFollowedByAuthUser(authUser.getFollowingUsers().contains(user));
+            userResponse.setUser(user);
+            userResponses.add(userResponse);
+        }
+        return new ResponseEntity<>(userResponses,HttpStatus.OK);
     }
 }

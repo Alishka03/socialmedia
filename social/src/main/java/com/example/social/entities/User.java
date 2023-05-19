@@ -47,6 +47,8 @@ public class User implements Serializable {
     private String intro;
     @Column(name = "hometown")
     private String hometown;
+    @Column(name = "workplace")
+    private String workplace;
 
     //POSTS
     @JsonIgnore

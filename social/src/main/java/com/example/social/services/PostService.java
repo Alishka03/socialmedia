@@ -45,6 +45,18 @@ public class PostService {
         this.commentRepository = commentRepository;
         this.userRepository = userRepository;
     }
+    public List<PostResponse> getAllPostsNotAuth() {
+        List<Post> posts = postRepository.findAllByOrderByDateCreatedAsc();
+        List<PostResponse> postResponses = new ArrayList<>();
+        for(Post post:posts){
+            PostResponse postResponse = new PostResponse();
+            postResponse.setLikedByAuthUser(false);
+            postResponse.setPost(post);
+            postResponses.add(postResponse);
+        }
+        return postResponses;
+    }
+
 
     public List<PostResponse> getAllPosts() {
         List<Post> posts = postRepository.findAllByOrderByDateCreatedAsc();

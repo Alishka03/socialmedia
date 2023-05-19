@@ -13,6 +13,7 @@ import java.util.Date;
 import java.util.List;
 
 @Service
+@Transactional
 public class CommentService {
     private final CommentRepository commentRepository;
     private final UserService userService;
@@ -36,6 +37,7 @@ public class CommentService {
         post.getComments().add(comment);
         post.setCommentCount(post.getCommentCount() + 1);
         postRepository.save(post);
+        System.out.println("POST POST"+post.toString());
         return commentRepository.save(comment);
     }
 

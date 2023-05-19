@@ -24,7 +24,6 @@ public class Comment {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private Date dateCreated;
     @ManyToOne
-    @JsonBackReference
     @JoinColumn(name = "author_id",nullable = false)
     private User author;
     @ManyToOne

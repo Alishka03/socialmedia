@@ -38,7 +38,7 @@ public class WebSecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf().disable().cors().and()
                 .authorizeHttpRequests()
-                .requestMatchers("/auth/**","/swagger-ui/**","/swagger-ui").permitAll()
+                .requestMatchers("/auth/**","/posts/no-auth","/admin/**").permitAll().requestMatchers("/posts/no-auth").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .exceptionHandling().accessDeniedHandler(accessDeniedHandler)
