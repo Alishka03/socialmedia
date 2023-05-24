@@ -36,7 +36,6 @@ public class CommentService {
         authUser.getComments().add(comment);
         post.getComments().add(comment);
         post.setCommentCount(post.getCommentCount() + 1);
-        postRepository.save(post);
         System.out.println("POST POST"+post.toString());
         return commentRepository.save(comment);
     }

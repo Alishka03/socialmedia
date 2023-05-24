@@ -158,4 +158,14 @@ public class UserService {
     public List<User> search(String value){
         return userRepository.findByNameIgnoreCaseContainingOrSurnameIgnoreCaseContaining(value,value);
     }
+
+    @Transactional
+    public void deleteUser(int id){
+        Optional<User> targetUser = userRepository.findById(id);
+        if(targetUser.isEmpty()){
+            throw new InvalidOperationException("User not found with id :" + id);
+        }else{
+            userRepository.deleteById(id);
+        }
+    }
 }

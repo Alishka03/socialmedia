@@ -36,7 +36,6 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<?> performLogin(@RequestBody AuthenticationDTO authenticationDTO) {
-        System.out.println(authenticationDTO.getUsername() + " " + authenticationDTO.getPassword());
         UsernamePasswordAuthenticationToken authInputToken =
                 new UsernamePasswordAuthenticationToken(authenticationDTO.getUsername(),
                         authenticationDTO.getPassword());
@@ -48,11 +47,9 @@ public class AuthController {
         }
         String username = (authInputToken.getPrincipal().toString());
         String token = jwtUtil.generateToken(authenticationDTO.getUsername());
-
         Optional<User> user = userService.userByUsername(username);
         HttpHeaders newHttpHeaders = new HttpHeaders();
         newHttpHeaders.add("Jwt-Token", token);
-
         if (user.isEmpty()) {
             return new ResponseEntity<>(new JwtResponse("FAILED"), HttpStatus.NOT_FOUND);
         } else {

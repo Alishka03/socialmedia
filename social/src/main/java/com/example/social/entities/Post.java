@@ -29,14 +29,14 @@ public class Post {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private Date dateCreated;
     //USER -> AUTHOR
-    @ManyToOne
+    @ManyToOne( cascade = {CascadeType.ALL})
     @JoinColumn(name = "author_id", referencedColumnName = "id")
     private User author;
     @JsonManagedReference
-    @OneToMany(mappedBy = "post", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "post", fetch = FetchType.LAZY, cascade = {CascadeType.ALL})
     private List<Comment> comments;
     @JsonIgnore
-    @ManyToMany
+    @ManyToMany( cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinTable(
             name = "post_likes",
             joinColumns = @JoinColumn(name = "post_id"),

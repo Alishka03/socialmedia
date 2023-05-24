@@ -40,4 +40,9 @@ public class AdminController {
         User user = userService.updateProfileAdmin(userUpdateInfoDTO,userId);
         return new ResponseEntity<>(user , HttpStatus.OK);
     }
+    @DeleteMapping("/users/{userId}/delete")
+    public ResponseEntity<?> deleteUser(@PathVariable int userId){
+        userService.deleteUser(userId);
+        return new ResponseEntity<>("User deleted with id: "+userId , HttpStatus.OK);
+    }
 }

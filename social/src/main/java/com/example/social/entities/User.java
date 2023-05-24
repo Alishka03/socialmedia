@@ -52,21 +52,22 @@ public class User implements Serializable {
 
     //POSTS
     @JsonIgnore
-    @OneToMany(mappedBy = "author", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+    @OneToMany(mappedBy = "author", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Post> postsList;
     //---------------
 
     @JsonIgnore
-    @OneToMany(mappedBy = "author", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "author", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Comment> comments;
 
+
     @JsonIgnore
-    @ManyToMany(mappedBy = "followerUsers", fetch = FetchType.LAZY)
+    @ManyToMany(mappedBy = "followerUsers", fetch = FetchType.LAZY,  cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private List<User> followingUsers = new ArrayList<>();
 
 
     @JsonIgnore
-    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinTable(
             name = "follow_users",
             joinColumns = @JoinColumn(name = "followed_id"),
@@ -76,7 +77,7 @@ public class User implements Serializable {
 
 
     @JsonIgnore
-    @ManyToMany(mappedBy = "likeList")
+    @ManyToMany(mappedBy = "likeList",cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private List<Post> likedPosts = new ArrayList<>();
 
     @Transient
